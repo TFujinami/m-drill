@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset='utf-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>.</title>
+
+<style>
+p { margin: 0; }
+
+#start, #drill, #result { display: none; }
+body[data-mode=start] #start { display: block; }
+body[data-mode=drill] #drill { display: block; }
+body[data-mode=result] #result { display: block; }
+
+.list:first-child { display: none; }
+.list.ng .ok, .list.ok .ng { display: none; }
+.list.ok .correct-wrapper { display: none; }
+.list.ng .ng { color: red; }
+.list.ok .ok { color: blue; }
+
+#result:not(.perfect) .perfect { display: none; }
+#result.perfect .not-perfect { display: none; }
+</style>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const urlParam = location.search.substring(1);
+  const params = urlParam.split('&');
+  const query = {};
+  params.forEach(param => {
+    const paramItem = param.split('=');
+    query[paramItem[0]] = paramItem[1];
+  });
+  // console.log(query.id);
+
+  const request = new XMLHttpRequest();
+  request.open('GET', query.id + '.json', false);
+  request.send(null);
+  const json = JSON.parse(request.responseText);
+
+  document.querySelector('title').innerText = json.title;
+
+  const original = json.drill;
+  const drills = [];
+  // console.log(original);
+  // console.log(original.length);
+  while (original.length > 0) {
+    const random = Math.floor( Math.random() * (original.length / 2) );
+    // console.log(random);
+    const qa = {};
+    qa.question = original.splice(random * 2, 1);
+    qa.answer = original.splice(random * 2, 1);
+    // console.log(qa.question);
+    // console.log(qa.answer);
+    drills.push(qa);
+    // console.log(original);
+    // console.log(original.length);
+  }
+  drills.forEach(drill => {
+    // console.log(drill.question + ':::' + drill.answer);
+  });
+
+  const alls = document.querySelectorAll('.all');
+  alls.forEach(all => {
+    all.innerText = drills.length;
+  });
+
+  let now = 0; 
+  let startTime;
+
+  document.querySelector('#start .button-start').addEventListener('click', () => {
+    // console.log('start');
+    changeMode('drill');
+    renderQuestion();
+    startTime = new Date();
+  });
+
+  renderQuestion = () => {
+    // console.log(value);
+    document.querySelector('#drill .now').innerText = now + 1;
+    document.querySelector('#drill .question').innerText = drills[now].question;
+    document.querySelector('#drill .input').value = '';
+    document.querySelector('#drill .input').focus();
+  }
+
+  document.querySelector('#drill .form').addEventListener('submit', () => {
+    // console.log('submit');
+    drills[now].input = document.querySelector('#drill .input').value;
+    now++;
+    if (now >= drills.length) {
+      renderResult();
+    } else {
+    renderQuestion();
+    }
+  });
+
+  renderResult = () => {
+    const endTime = new Date();
+    const lists = document.querySelector('#result .lists');
+    const list = lists.querySelector('.list');
+    let correct = 0;
+    drills.forEach(drill => {
+      const result = list.cloneNode(true)
+      result.querySelector('.question').innerText = drill.question;
+      result.querySelector('.answer').innerText = drill.answer;
+      result.querySelector('.input').innerText = drill.input;
+      if (drill.answer == drill.input) {
+        result.classList.add('ok');
+        correct++;
+      } else {
+        result.classList.add('ng');
+      }
+      lists.appendChild(result);
+    });
+    document.querySelector('#result .correct').innerText = correct;
+    if (drills.length == correct) {
+      document.querySelector('#result').classList.add('perfect');
+    }
+    document.querySelector('#result .time').innerText = Math.floor((endTime - startTime) / 1000);
+    changeMode('result');
+  }
+
+  changeMode = value => {
+    // console.log(value);
+    document.querySelector('body').setAttribute('data-mode', value);
+  }
+  changeMode('start');
+});
+</script>
+
+</head>
+<body data-mode="">
+
+  <div id="start">mode: start
+    <p class="count">全<span class="all"></span>問</p>
+    <p class="start-wrapper"><a href="javascript:void(0);" class="button-start">スタート</a></p>
+  </div>
+
+  <div id="drill">mode: drill
+    <p class="count">全<span class="all"></span>問中 <span class="now"></span>問目</p>
+    <p class="question"></p>
+    <form class="form" action="javascript:void(0);"><input class="input" value=""></form>
+  </div>
+
+  <div id="result">mode: result
+    <ul class="lists">
+      <li class="list">
+        <p class="result-wrapper"><span class="ok">OK</span><span class="ng">NG</span></p>
+        <p class="question-wrapper">問題: <span class="question"></span></p>
+        <p class="answer-wrapper">入力: <span class="input"></span><span class="correct-wrapper"> (正解: <span class="answer"></span>)</span></p>
+      </li>
+    </ul>
+    <p class="count">全<span class="all"></span>問中 <span class="not-perfect"><span class="correct"></span>問正解</span><span class="perfect">全問正解 素晴らしい！</span></p>
+    <p class="time-wrapper">かかった時間: <span class="time"></span>秒</p>
+  </div>
+
+</body>
+</html>
