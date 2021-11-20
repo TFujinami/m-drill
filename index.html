@@ -104,7 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
       result.querySelector('.question').innerText = drill.question;
       result.querySelector('.answer').innerText = drill.answer;
       result.querySelector('.input').innerText = drill.input;
-      if (serialize(drill.answer) == serialize(drill.input)) {
+      if (serialize(drill.answer) === serialize(drill.input)) {
         result.classList.add('ok');
         correct++;
       } else {
