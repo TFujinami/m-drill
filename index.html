@@ -104,7 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
       result.querySelector('.question').innerText = drill.question;
       result.querySelector('.answer').innerText = drill.answer;
       result.querySelector('.input').innerText = drill.input;
-      if (drill.answer == drill.input) {
+      if (serialize(drill.answer) === serialize(drill.input)) {
         result.classList.add('ok');
         correct++;
       } else {
@@ -118,6 +118,12 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     document.querySelector('#result .time').innerText = Math.floor((endTime - startTime) / 1000);
     changeMode('result');
+  }
+
+  serialize = text => {
+    text = String(text); // テキストに型変換
+    text = text.toLowerCase() ;
+    return text;
   }
 
   changeMode = value => {
