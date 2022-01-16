@@ -2,24 +2,29 @@
 <html lang="ja">
 <meta charset='utf-8'>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>.</title>
+<title>ドリル</title>
 
 <style>
-p { margin: 0; }
+p, ul { margin: 0; }
 
-#start, #drill, #result { display: none; }
+#index, #start, #drill, #result { display: none; }
+body[data-mode=index] #index { display: block; }
 body[data-mode=start] #start { display: block; }
 body[data-mode=drill] #drill { display: block; }
 body[data-mode=result] #result { display: block; }
 
-.list:first-child { display: none; }
-.list.ng .ok, .list.ok .ng { display: none; }
-.list.ok .correct-wrapper { display: none; }
-.list.ng .ng { color: red; }
-.list.ok .ok { color: blue; }
+.name { font-weight: bold; }
 
-#result:not(.perfect) .perfect { display: none; }
-#result.perfect .not-perfect { display: none; }
+#result .result-item:first-child { display: none; }
+#result .result-item.is-ng .result-ok, .result-item.is-ok .result-ng { display: none; }
+#result .result-item.is-ok .result-answer-wrapper { display: none; }
+#result .result-item.is-ng .result-ng { color: red; }
+#result .result-item.is-ok .result-ok { color: blue; }
+
+#result:not(.is-perfect) .result-perfect { display: none; }
+#result.is-perfect .result-not-perfect { display: none; }
+
+.debug { display: none; }
 </style>
 
 <script>
@@ -33,42 +38,73 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   // console.log(query.id);
 
-  const request = new XMLHttpRequest();
-  request.open('GET', query.id + '.json', false);
-  request.send(null);
-  const json = JSON.parse(request.responseText);
-
-  document.querySelector('title').innerText = json.title;
-
-  const original = json.drill;
   const drills = [];
-  // console.log(original);
-  // console.log(original.length);
-  while (original.length > 0) {
-    const random = Math.floor( Math.random() * (original.length / 2) );
-    // console.log(random);
-    const qa = {};
-    qa.question = original.splice(random * 2, 1);
-    qa.answer = original.splice(random * 2, 1);
-    // console.log(qa.question);
-    // console.log(qa.answer);
-    drills.push(qa);
-    // console.log(original);
-    // console.log(original.length);
-  }
-  drills.forEach(drill => {
-    // console.log(drill.question + ':::' + drill.answer);
-  });
-
-  const alls = document.querySelectorAll('.all');
-  alls.forEach(all => {
-    all.innerText = drills.length;
-  });
-
-  let now = 0; 
+  let now = 0;
   let startTime;
 
-  document.querySelector('#start .button-start').addEventListener('click', () => {
+    loadData = () => {
+    if (!query.id || query.id === '') {
+      renderIndex();
+    } else {
+      const request = new XMLHttpRequest();
+      request.open('GET', query.id + '.json', false);
+      request.onload = () => {
+        if (request.status == 200) {
+          renderStart(request.responseText);
+        } else {
+          goIndex();
+        }
+      }
+      request.send(null);
+    }
+  }
+
+  renderIndex = () => {
+    changeMode('index');
+  }
+
+  goIndex = () => {
+    location.href = './'
+  }
+
+  renderStart = (data) => {
+    const json = JSON.parse(data);
+
+    document.querySelector('title').innerText = json.title;
+
+    const names = document.querySelectorAll('.name');
+    names.forEach(name => {
+      name.innerText = json.title;
+    });
+
+    const original = json.drill;
+    // console.log(original);
+    // console.log(original.length);
+    while (original.length > 0) {
+      const random = Math.floor( Math.random() * (original.length / 2) );
+      // console.log(random);
+      const qa = {};
+      qa.question = original.splice(random * 2, 1);
+      qa.answer = original.splice(random * 2, 1);
+      // console.log(qa.question);
+      // console.log(qa.answer);
+      drills.push(qa);
+      // console.log(original);
+      // console.log(original.length);
+    }
+    drills.forEach(drill => {
+      // console.log(drill.question + ':::' + drill.answer);
+    });
+
+    const alls = document.querySelectorAll('.all');
+    alls.forEach(all => {
+      all.innerText = drills.length;
+    });
+
+    changeMode('start');
+  }
+
+  document.querySelector('#start .start-button').addEventListener('click', () => {
     // console.log('start');
     changeMode('drill');
     renderQuestion();
@@ -77,46 +113,46 @@ window.addEventListener('DOMContentLoaded', () => {
 
   renderQuestion = () => {
     // console.log(value);
-    document.querySelector('#drill .now').innerText = now + 1;
-    document.querySelector('#drill .question').innerText = drills[now].question;
-    document.querySelector('#drill .input').value = '';
-    document.querySelector('#drill .input').focus();
+    document.querySelector('#drill .drill-now').innerText = now + 1;
+    document.querySelector('#drill .drill-question').innerText = drills[now].question;
+    document.querySelector('#drill .drill-input').value = '';
+    document.querySelector('#drill .drill-input').focus();
   }
 
-  document.querySelector('#drill .form').addEventListener('submit', () => {
+  document.querySelector('#drill .drill-form').addEventListener('submit', () => {
     // console.log('submit');
-    drills[now].input = document.querySelector('#drill .input').value;
+    drills[now].input = document.querySelector('#drill .drill-input').value;
     now++;
     if (now >= drills.length) {
       renderResult();
     } else {
-    renderQuestion();
+      renderQuestion();
     }
   });
 
   renderResult = () => {
     const endTime = new Date();
-    const lists = document.querySelector('#result .lists');
-    const list = lists.querySelector('.list');
+    const list = document.querySelector('#result .result-list');
+    const item = list.querySelector('.result-item');
     let correct = 0;
     drills.forEach(drill => {
-      const result = list.cloneNode(true)
-      result.querySelector('.question').innerText = drill.question;
-      result.querySelector('.answer').innerText = drill.answer;
-      result.querySelector('.input').innerText = drill.input;
+      const result = item.cloneNode(true)
+      result.querySelector('.result-question').innerText = drill.question;
+      result.querySelector('.result-answer').innerText = drill.answer;
+      result.querySelector('.result-input').innerText = drill.input;
       if (serialize(drill.answer) === serialize(drill.input)) {
-        result.classList.add('ok');
+        result.classList.add('is-ok');
         correct++;
       } else {
-        result.classList.add('ng');
+        result.classList.add('is-ng');
       }
-      lists.appendChild(result);
+      list.appendChild(result);
     });
-    document.querySelector('#result .correct').innerText = correct;
+    document.querySelector('#result .result-correct').innerText = correct;
     if (drills.length == correct) {
-      document.querySelector('#result').classList.add('perfect');
+      document.querySelector('#result').classList.add('is-perfect');
     }
-    document.querySelector('#result .time').innerText = Math.floor((endTime - startTime) / 1000);
+    document.querySelector('#result .result-time').innerText = Math.floor((endTime - startTime) / 1000);
     changeMode('result');
   }
 
@@ -130,34 +166,53 @@ window.addEventListener('DOMContentLoaded', () => {
     // console.log(value);
     document.querySelector('body').setAttribute('data-mode', value);
   }
-  changeMode('start');
+
+  loadData();
 });
 </script>
 
 </head>
 <body data-mode="">
 
-  <div id="start">mode: start
+  <div id="index">
+    <p class="debug">mode: index</p>
+    <p class="index-intro">どのドリルをやりますか？</p>
+    <ul class="index-list">
+      <li class="index-item"><a href="?id=jh1-eng-pg5" class="index-link">中1 英語 プログラム5</a></li>
+    </ul>
+  </div>
+
+  <div id="start">
+    <p class="debug">mode: start</p>
+    <p class="name"></p>
+    <p class="start-intro">スタートをクリックすると開始します。</p>
     <p class="count">全<span class="all"></span>問</p>
-    <p class="start-wrapper"><a href="javascript:void(0);" class="button-start">スタート</a></p>
+    <p class="start-wrapper"><a href="javascript:void(0);" class="start-button">スタート</a></p>
   </div>
 
-  <div id="drill">mode: drill
-    <p class="count">全<span class="all"></span>問中 <span class="now"></span>問目</p>
-    <p class="question"></p>
-    <form class="form" action="javascript:void(0);"><input class="input" value=""></form>
+  <div id="drill">
+    <p class="debug">mode: drill</p>
+    <p class="name"></p>
+    <p class="count">全<span class="all"></span>問中 <span class="drill-now"></span>問目</p>
+    <p class="drill-question"></p>
+    <form class="drill-form" action="javascript:void(0);"><input class="drill-input" value=""></form>
   </div>
 
-  <div id="result">mode: result
-    <ul class="lists">
-      <li class="list">
-        <p class="result-wrapper"><span class="ok">OK</span><span class="ng">NG</span></p>
-        <p class="question-wrapper">問題: <span class="question"></span></p>
-        <p class="answer-wrapper">入力: <span class="input"></span><span class="correct-wrapper"> (正解: <span class="answer"></span>)</span></p>
+  <div id="result">
+    <p class="debug">mode: result</p>
+    <p class="name"></p>
+    <p class="result-intro">結果：</p>
+    <ul class="result-list">
+      <li class="result-item">
+        <p class="result-wrapper"><span class="result-ok">OK</span><span class="result-ng">NG</span></p>
+        <p class="result-question-wrapper">問題: <span class="result-question"></span></p>
+        <p class="result-answer-wrapper">入力: <span class="result-input"></span><span class="result-answer-wrapper"> (正解: <span class="result-answer"></span>)</span></p>
       </li>
     </ul>
-    <p class="count">全<span class="all"></span>問中 <span class="not-perfect"><span class="correct"></span>問正解</span><span class="perfect">全問正解 素晴らしい！</span></p>
-    <p class="time-wrapper">かかった時間: <span class="time"></span>秒</p>
+    <p class="count">全<span class="all"></span>問中 <span class="result-not-perfect"><span class="result-correct"></span>問正解</span><span class="result-perfect">全問正解 素晴らしい！</span></p>
+    <p class="result-time-wrapper">かかった時間: <span class="result-time"></span>秒</p>
+    <p class="result-again-wrapper"><a href="" class="result-again">同じ問題をもう1回やる</a></p>
+    <p class="result-reset-wrapper"><a href="./" class="result-reset">他の問題をやる</a></p>
   </div>
 
 </body>
