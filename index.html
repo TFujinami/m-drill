@@ -5,9 +5,10 @@
 <title>.</title>
 
 <style>
-p { margin: 0; }
+p, ul { margin: 0; }
 
-#start, #drill, #result { display: none; }
+#index, #start, #drill, #result { display: none; }
+body[data-mode=index] #index { display: block; }
 body[data-mode=start] #start { display: block; }
 body[data-mode=drill] #drill { display: block; }
 body[data-mode=result] #result { display: block; }
@@ -33,40 +34,66 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   // console.log(query.id);
 
-  const request = new XMLHttpRequest();
-  request.open('GET', query.id + '.json', false);
-  request.send(null);
-  const json = JSON.parse(request.responseText);
-
-  document.querySelector('title').innerText = json.title;
-
-  const original = json.drill;
   const drills = [];
-  // console.log(original);
-  // console.log(original.length);
-  while (original.length > 0) {
-    const random = Math.floor( Math.random() * (original.length / 2) );
-    // console.log(random);
-    const qa = {};
-    qa.question = original.splice(random * 2, 1);
-    qa.answer = original.splice(random * 2, 1);
-    // console.log(qa.question);
-    // console.log(qa.answer);
-    drills.push(qa);
+  let now = 0;
+  let startTime;
+
+    loadData = () => {
+    if (!query.id || query.id === '') {
+      renderIndex();
+    } else {
+      const request = new XMLHttpRequest();
+      request.open('GET', query.id + '.json', false);
+      request.onload = () => {
+        if (request.status == 200) {
+          renderStart(request.responseText);
+        } else {
+          goIndex();
+        }
+      }
+      request.send(null);
+    }
+  }
+
+  renderIndex = () => {
+    changeMode('index');
+  }
+
+  goIndex = () => {
+    location.href = './'
+  }
+
+  renderStart = (data) => {
+    const json = JSON.parse(data);
+
+    document.querySelector('title').innerText = json.title;
+
+    const original = json.drill;
     // console.log(original);
     // console.log(original.length);
+    while (original.length > 0) {
+      const random = Math.floor( Math.random() * (original.length / 2) );
+      // console.log(random);
+      const qa = {};
+      qa.question = original.splice(random * 2, 1);
+      qa.answer = original.splice(random * 2, 1);
+      // console.log(qa.question);
+      // console.log(qa.answer);
+      drills.push(qa);
+      // console.log(original);
+      // console.log(original.length);
+    }
+    drills.forEach(drill => {
+      // console.log(drill.question + ':::' + drill.answer);
+    });
+
+    const alls = document.querySelectorAll('.all');
+    alls.forEach(all => {
+      all.innerText = drills.length;
+    });
+
+    changeMode('start');
   }
-  drills.forEach(drill => {
-    // console.log(drill.question + ':::' + drill.answer);
-  });
-
-  const alls = document.querySelectorAll('.all');
-  alls.forEach(all => {
-    all.innerText = drills.length;
-  });
-
-  let now = 0; 
-  let startTime;
 
   document.querySelector('#start .button-start').addEventListener('click', () => {
     // console.log('start');
@@ -130,12 +157,19 @@ window.addEventListener('DOMContentLoaded', () => {
     // console.log(value);
     document.querySelector('body').setAttribute('data-mode', value);
   }
-  changeMode('start');
+
+  loadData();
 });
 </script>
 
 </head>
 <body data-mode="">
+
+  <div id="index">mode: index
+    <ul class="index-list">
+      <li class="index-list-item"><a href="?id=jh1-eng-pg5" class="index-list-item-link">中1 英語 プログラム5</a></li>
+    </ul>
+  </div>
 
   <div id="start">mode: start
     <p class="count">全<span class="all"></span>問</p>
