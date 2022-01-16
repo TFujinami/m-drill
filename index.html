@@ -104,15 +104,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
   renderQuestion = () => {
     // console.log(value);
-    document.querySelector('#drill .now').innerText = now + 1;
-    document.querySelector('#drill .question').innerText = drills[now].question;
-    document.querySelector('#drill .input').value = '';
-    document.querySelector('#drill .input').focus();
+    document.querySelector('#drill .drill-now').innerText = now + 1;
+    document.querySelector('#drill .drill-question').innerText = drills[now].question;
+    document.querySelector('#drill .drill-input').value = '';
+    document.querySelector('#drill .drill-input').focus();
   }
 
-  document.querySelector('#drill .form').addEventListener('submit', () => {
+  document.querySelector('#drill .drill-form').addEventListener('submit', () => {
     // console.log('submit');
-    drills[now].input = document.querySelector('#drill .input').value;
+    drills[now].input = document.querySelector('#drill .drill-input').value;
     now++;
     if (now >= drills.length) {
       renderResult();
@@ -177,9 +177,9 @@ window.addEventListener('DOMContentLoaded', () => {
   </div>
 
   <div id="drill">mode: drill
-    <p class="count">全<span class="all"></span>問中 <span class="now"></span>問目</p>
-    <p class="question"></p>
-    <form class="form" action="javascript:void(0);"><input class="input" value=""></form>
+    <p class="count">全<span class="all"></span>問中 <span class="drill-now"></span>問目</p>
+    <p class="drill-question"></p>
+    <form class="drill-form" action="javascript:void(0);"><input class="drill-input" value=""></form>
   </div>
 
   <div id="result">mode: result
