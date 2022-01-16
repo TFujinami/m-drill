@@ -21,6 +21,8 @@ body[data-mode=result] #result { display: block; }
 
 #result:not(.is-perfect) .result-perfect { display: none; }
 #result.is-perfect .result-not-perfect { display: none; }
+
+.debug { display: none; }
 </style>
 
 <script>
@@ -165,24 +167,28 @@ window.addEventListener('DOMContentLoaded', () => {
 </head>
 <body data-mode="">
 
-  <div id="index">mode: index
+  <div id="index">
+    <p class="debug">mode: index</p>
     <ul class="index-list">
       <li class="index-item"><a href="?id=jh1-eng-pg5" class="index-link">中1 英語 プログラム5</a></li>
     </ul>
   </div>
 
-  <div id="start">mode: start
+  <div id="start">
+    <p class="debug">mode: start</p>
     <p class="count">全<span class="all"></span>問</p>
     <p class="start-wrapper"><a href="javascript:void(0);" class="start-button">スタート</a></p>
   </div>
 
-  <div id="drill">mode: drill
+  <div id="drill">
+    <p class="debug">mode: drill</p>
     <p class="count">全<span class="all"></span>問中 <span class="drill-now"></span>問目</p>
     <p class="drill-question"></p>
     <form class="drill-form" action="javascript:void(0);"><input class="drill-input" value=""></form>
   </div>
 
-  <div id="result">mode: result
+  <div id="result">
+    <p class="debug">mode: result</p>
     <ul class="result-list">
       <li class="result-item">
         <p class="result-wrapper"><span class="result-ok">OK</span><span class="result-ng">NG</span></p>
