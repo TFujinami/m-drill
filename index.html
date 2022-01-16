@@ -13,14 +13,14 @@ body[data-mode=start] #start { display: block; }
 body[data-mode=drill] #drill { display: block; }
 body[data-mode=result] #result { display: block; }
 
-.list:first-child { display: none; }
-.list.ng .ok, .list.ok .ng { display: none; }
-.list.ok .correct-wrapper { display: none; }
-.list.ng .ng { color: red; }
-.list.ok .ok { color: blue; }
+#result .result-item:first-child { display: none; }
+#result .result-item.is-ng .result-ok, .result-item.is-ok .result-ng { display: none; }
+#result .result-item.is-ok .result-answer-wrapper { display: none; }
+#result .result-item.is-ng .result-ng { color: red; }
+#result .result-item.is-ok .result-ok { color: blue; }
 
-#result:not(.perfect) .perfect { display: none; }
-#result.perfect .not-perfect { display: none; }
+#result:not(.is-perfect) .result-perfect { display: none; }
+#result.is-perfect .result-not-perfect { display: none; }
 </style>
 
 <script>
@@ -123,27 +123,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
   renderResult = () => {
     const endTime = new Date();
-    const lists = document.querySelector('#result .lists');
-    const list = lists.querySelector('.list');
+    const list = document.querySelector('#result .result-list');
+    const item = list.querySelector('.result-item');
     let correct = 0;
     drills.forEach(drill => {
-      const result = list.cloneNode(true)
-      result.querySelector('.question').innerText = drill.question;
-      result.querySelector('.answer').innerText = drill.answer;
-      result.querySelector('.input').innerText = drill.input;
+      const result = item.cloneNode(true)
+      result.querySelector('.result-question').innerText = drill.question;
+      result.querySelector('.result-answer').innerText = drill.answer;
+      result.querySelector('.result-input').innerText = drill.input;
       if (serialize(drill.answer) === serialize(drill.input)) {
-        result.classList.add('ok');
+        result.classList.add('is-ok');
         correct++;
       } else {
-        result.classList.add('ng');
+        result.classList.add('is-ng');
       }
-      lists.appendChild(result);
+      list.appendChild(result);
     });
-    document.querySelector('#result .correct').innerText = correct;
+    document.querySelector('#result .result-correct').innerText = correct;
     if (drills.length == correct) {
-      document.querySelector('#result').classList.add('perfect');
+      document.querySelector('#result').classList.add('is-perfect');
     }
-    document.querySelector('#result .time').innerText = Math.floor((endTime - startTime) / 1000);
+    document.querySelector('#result .result-time').innerText = Math.floor((endTime - startTime) / 1000);
     changeMode('result');
   }
 
@@ -183,15 +183,15 @@ window.addEventListener('DOMContentLoaded', () => {
   </div>
 
   <div id="result">mode: result
-    <ul class="lists">
-      <li class="list">
-        <p class="result-wrapper"><span class="ok">OK</span><span class="ng">NG</span></p>
-        <p class="question-wrapper">問題: <span class="question"></span></p>
-        <p class="answer-wrapper">入力: <span class="input"></span><span class="correct-wrapper"> (正解: <span class="answer"></span>)</span></p>
+    <ul class="result-list">
+      <li class="result-item">
+        <p class="result-wrapper"><span class="result-ok">OK</span><span class="result-ng">NG</span></p>
+        <p class="result-question-wrapper">問題: <span class="result-question"></span></p>
+        <p class="result-answer-wrapper">入力: <span class="result-input"></span><span class="result-answer-wrapper"> (正解: <span class="result-answer"></span>)</span></p>
       </li>
     </ul>
-    <p class="count">全<span class="all"></span>問中 <span class="not-perfect"><span class="correct"></span>問正解</span><span class="perfect">全問正解 素晴らしい！</span></p>
-    <p class="time-wrapper">かかった時間: <span class="time"></span>秒</p>
+    <p class="count">全<span class="all"></span>問中 <span class="result-not-perfect"><span class="result-correct"></span>問正解</span><span class="result-perfect">全問正解 素晴らしい！</span></p>
+    <p class="result-time-wrapper">かかった時間: <span class="result-time"></span>秒</p>
   </div>
 
 </body>
