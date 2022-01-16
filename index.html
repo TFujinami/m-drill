@@ -95,7 +95,7 @@ window.addEventListener('DOMContentLoaded', () => {
     changeMode('start');
   }
 
-  document.querySelector('#start .button-start').addEventListener('click', () => {
+  document.querySelector('#start .start-button').addEventListener('click', () => {
     // console.log('start');
     changeMode('drill');
     renderQuestion();
@@ -173,7 +173,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   <div id="start">mode: start
     <p class="count">全<span class="all"></span>問</p>
-    <p class="start-wrapper"><a href="javascript:void(0);" class="button-start">スタート</a></p>
+    <p class="start-wrapper"><a href="javascript:void(0);" class="start-button">スタート</a></p>
   </div>
 
   <div id="drill">mode: drill
