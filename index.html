@@ -13,6 +13,8 @@ body[data-mode=start] #start { display: block; }
 body[data-mode=drill] #drill { display: block; }
 body[data-mode=result] #result { display: block; }
 
+.name { font-weight: bold; }
+
 #result .result-item:first-child { display: none; }
 #result .result-item.is-ng .result-ok, .result-item.is-ok .result-ng { display: none; }
 #result .result-item.is-ok .result-answer-wrapper { display: none; }
@@ -69,6 +71,11 @@ window.addEventListener('DOMContentLoaded', () => {
     const json = JSON.parse(data);
 
     document.querySelector('title').innerText = json.title;
+
+    const names = document.querySelectorAll('.name');
+    names.forEach(name => {
+      name.innerText = json.title;
+    });
 
     const original = json.drill;
     // console.log(original);
@@ -177,6 +184,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   <div id="start">
     <p class="debug">mode: start</p>
+    <p class="name"></p>
     <p class="start-intro">スタートをクリックすると開始します。</p>
     <p class="count">全<span class="all"></span>問</p>
     <p class="start-wrapper"><a href="javascript:void(0);" class="start-button">スタート</a></p>
@@ -184,6 +192,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   <div id="drill">
     <p class="debug">mode: drill</p>
+    <p class="name"></p>
     <p class="count">全<span class="all"></span>問中 <span class="drill-now"></span>問目</p>
     <p class="drill-question"></p>
     <form class="drill-form" action="javascript:void(0);"><input class="drill-input" value=""></form>
@@ -191,6 +200,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   <div id="result">
     <p class="debug">mode: result</p>
+    <p class="name"></p>
     <p class="result-intro">結果：</p>
     <ul class="result-list">
       <li class="result-item">
